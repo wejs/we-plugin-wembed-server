@@ -1,6 +1,6 @@
 {
   "name": "we-plugin-wembed-server",
-  "description": "We.js we-plugin-wembed-server plugin",
+  "description": "We.js wembed server plugin",
   "version": "1.0.0",
   "main": "plugin.js",
   "scripts": {
@@ -31,6 +31,10 @@
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wejs/we-plugin-wembed-server.git"
   },
   "license": "MIT"
 }
