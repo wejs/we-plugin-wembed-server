@@ -1,0 +1,45 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  font-size: 20px
+}
+
+.site-embed {
+  display: table;
+  margin: 5px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-right: 3px solid #ddd;
+  background-color: #fff;
+}
+
+.site-embed-image img {
+  float: left;
+  margin: 0px 20px 10px 0px;
+  min-width: 100px;
+  width: 35%;
+  max-width: 250px;
+}
+
+.site-embed-description {
+  font-size: 15px;
+  margin: 15px 0px 10px 0px;
+}
+
+.site-embed-domain {
+  font-size: 13px;
+  color: #aaa;
+}
+.embed-link {
+  color: black;
+
+  text-decoration: none;
+  /* display: block; */
+}
+
+.embed-link:hover {
+  background-color: #f8f8f8;
+  display: table;
+}

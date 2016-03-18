@@ -1,0 +1,36 @@
+{
+  "name": "we-plugin-wembed-server",
+  "description": "We.js we-plugin-wembed-server plugin",
+  "version": "1.0.0",
+  "main": "plugin.js",
+  "scripts": {
+    "test": "NODE_ENV=test LOG_LV=info ./node_modules/.bin/mocha test/bootstrap.js test/**/*.test.js",
+    "prepublish": "npm prune"
+  },
+  "dependencies": {
+    "cheerio": "^0.20.0",
+    "gm": "^1.21.1",
+    "mime": "^1.3.4",
+    "request": "^2.69.0",
+    "valid-url": "^1.0.9",
+    "youtube-node": "^1.3.0"
+  },
+  "devDependencies": {
+    "express-mysql-session": "^1.0.0-rc.0",
+    "fs-extra": "^0.18.2",
+    "mocha": "^2.2.5",
+    "mysql": "^2.10.2",
+    "rimraf": "^2.3.4",
+    "supertest": "^1.0.1",
+    "we-core": "wejs/we-core",
+    "we-plugin-file": "^1.0.4",
+    "we-plugin-form": "wejs/we-plugin-form",
+    "we-test-tools": "wejs/we-test-tools",
+    "we-theme-admin-default": "wejs/we-theme-admin-default",
+    "we-theme-site-wejs": "wejs/we-theme-site-wejs"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,8 @@
+files/uploads
+files/public/wembed
+files/tmp
+test/locales/
+node_modules
+coverage
+config
+*.log

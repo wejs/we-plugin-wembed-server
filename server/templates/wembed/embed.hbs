@@ -1,0 +1,24 @@
+<html>
+<head>
+  <title>Wembed | {{page.title}}</title>
+  <meta property="og:title" content="{{page.title}}">
+  <meta property="og:description" content="{{page.description}}">
+  <meta property="og:image" content="{{imageUrl}}">
+  <meta property="og:url" content="{{page.url}}">
+  <link rel="stylesheet" type="text/css" href="{{we.config.hostname}}/public/plugin/we-plugin-wembed-server/files/embed.css">
+</head>
+<body>
+  <div class="site-embed">
+    <a class="embed-link" target="_blank" href="{{page.url}}">
+      {{#if image}}
+        <div class="site-embed-image">
+          <img src="{{image.urls.original}}" text="Image from {{page.title}}">
+        </div>
+      {{/if}}
+      <h1 class="site-embed-title">{{page.title}}</h1>
+      <p class="site-embed-description">{{page.description}}</p>
+      <div class="site-embed-domain">{{page.domain}}</div>
+    </a>
+  </div>
+</body>
+</html>
