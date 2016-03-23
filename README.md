@@ -2,9 +2,11 @@
 
 > We.js wembed server plugin
 > 
-> Add suport to download and parse data from sites
+> Add suport to parse metadata from sites and expose as JSON or HTML
+> 
 
 Example with HTML: https://wejs.org/api/v1/embed?url=https://www.youtube.com/watch?v=1G4isv_Fylg
+
 Example with JSON: https://wejs.org/api/v1/json?url=https://www.youtube.com/watch?v=1G4isv_Fylg
 
 ## Installation
