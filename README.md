@@ -35,13 +35,13 @@ In you configuration file:
 Get wembed in JSON:
 
 ```
-get /api/v1/:wembedType/json?url=https://www.youtube.com/watch?v=1G4isv_Fylg
+get /api/v1/json?url=https://www.youtube.com/watch?v=1G4isv_Fylg
 ```
 
 Get wembed in HTML:
 
 ```
-get /api/v1/:wembedType/embed?url=https://www.youtube.com/watch?v=1G4isv_Fylg
+get /api/v1/embed?url=https://www.youtube.com/watch?v=1G4isv_Fylg
 ```
 
 ## Links
