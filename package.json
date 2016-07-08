@@ -25,9 +25,7 @@
     "supertest": "^1.0.1",
     "we-core": "wejs/we-core",
     "we-plugin-file": "^1.0.4",
-    "we-plugin-form": "wejs/we-plugin-form",
     "we-test-tools": "wejs/we-test-tools",
-    "we-theme-admin-default": "wejs/we-theme-admin-default",
     "we-theme-site-wejs": "wejs/we-theme-site-wejs"
   },
   "author": "Alberto Souza <contato@albertosouza.net>",
@@ -35,5 +33,13 @@
   "keywords": [
     "wejs-plugin"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "wejs": {
+    "plugins": {
+      "we-plugin-view": true
+    },
+    "depencencies": {
+      "we-plugin-view": true
+    }
+  }
 }
