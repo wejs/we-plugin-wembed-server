@@ -1,4 +1,4 @@
-var mkdirp = require('mkdirp');
+const path = require('path');
 
 module.exports = {
   /**
@@ -7,10 +7,11 @@ module.exports = {
    * @param  {Object}   we    we.js object
    * @param  {Function} done  callback
    */
-  install: function install(we, done) {
+  install (we, done) {
     we.utils.async.series([
-      function createTMPFolder(done) {
-        mkdirp('files/tmp/', done);
+      function createTMPFolder (done) {
+        let p = path.resolve(process.cwd(), 'files/tmp');
+        we.utils.mkdirp(p, done);
       }
     ], done);
   }

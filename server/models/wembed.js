@@ -7,7 +7,7 @@
  */
 
 module.exports = function (we) {
-  var model = {
+  const model = {
     definition: {
       url: {
         type: we.db.Sequelize.STRING(2500),
@@ -50,13 +50,14 @@ module.exports = function (we) {
     options: {
       // title field, for default title record pages
       titleField: 'title',
+      enableAlias: false,
+      tableName: 'wembeds',
 
       classMethods: {},
       instanceMethods: {},
       hooks: {
-        beforeCreate: function(record, opts, done) {
+        beforeCreate(record) {
           record.cacheTime = new Date();
-          done();
         }
 
       }

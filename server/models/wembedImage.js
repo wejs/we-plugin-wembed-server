@@ -7,7 +7,7 @@
  */
 
 module.exports = function (we) {
-  var model = {
+  const model = {
     definition: {
       name: {
         type: we.db.Sequelize.STRING,
@@ -56,11 +56,11 @@ module.exports = function (we) {
       }
     },
     options: {
-      // title field, for default title record pages
-      titleField: 'title',
+      titleField: 'name',
+      enableAlias: false,
 
       classMethods: {
-        getStyleUrlFromImage: function getStyleUrlFromImage(image) {
+        getStyleUrlFromImage(image) {
           return {
             original: we.config.hostname + '/public/project/wembed/images/'+
               image.wembedId+
@@ -69,16 +69,15 @@ module.exports = function (we) {
         }
       },
       instanceMethods: {
-        toJSON: function toJSON() {
-          var obj = this.get();
+        toJSON() {
+          let obj = this.get();
           obj.urls = we.db.models.wembedImage.getStyleUrlFromImage(obj);
           return obj;
         },
       },
       hooks: {
-        beforeCreate: function beforeCreate(record, opts, done) {
+        beforeCreate(record) {
           record.cacheTime = new Date();
-          done();
         }
       }
     }

@@ -1,14 +1,15 @@
-var projectPath = process.cwd();
-var deleteDir = require('rimraf');
-var testTools = require('we-test-tools');
-var path = require('path');
-var We = require('we-core');
-var we;
+const projectPath = process.cwd();
+const deleteDir = require('rimraf');
+const testTools = require('we-test-tools');
+const path = require('path');
+const We = require('we-core');
+
+let we;
 
 before(function(callback) {
   this.slow(100);
 
-  testTools.copyLocalConfigIfNotExitst(projectPath, function() {
+  testTools.copyLocalSQLiteConfigIfNotExists(projectPath, function() {
     we = new We();
 
     testTools.init({}, we);
@@ -17,9 +18,18 @@ before(function(callback) {
       i18n: {
         directory: path.join(__dirname, 'locales'),
         updateFiles: true
+      },
+      themes: {
+        enabled: [
+          'we-theme-site-wejs'
+        ],
+        app: 'we-theme-site-wejs'
       }
     } , function (err, we) {
-      if (err) throw err;
+      if (err) {
+        console.log('Error on bootstrap:', err);
+        return callback(err);
+      }
 
       if (!we.plugins['we-plugin-wembed-server'])
         we.plugins['we-plugin-wembed-server'] = we.plugins.project;
@@ -36,9 +46,10 @@ before(function(callback) {
 after(function (callback) {
   we.db.defaultConnection.close();
 
-  var tempFolders = [
+  let tempFolders = [
     projectPath + '/files/config',
     projectPath + '/files/sqlite',
+    projectPath + '/database.sqlite',
 
     projectPath + '/files/public/min',
 
@@ -55,3 +66,5 @@ after(function (callback) {
   })
 
 });
+
+

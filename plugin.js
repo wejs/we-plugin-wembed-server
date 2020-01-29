@@ -3,20 +3,22 @@
  *
  * see http://wejs.org/docs/we/plugin
  */
-var fs = require('fs'),
+const fs = require('fs'),
   path = require('path'),
   request = require('request'),
   cheerio = require('cheerio'),
   uuid = require('uuid'),
   gm = require('gm'),
   mime = require('mime'),
-  rmdir = require('rimraf'),
-  mkdirp = require('mkdirp');
+  rmdir = require('rimraf');
 
-var urlService = require('./lib/urlService');
+const urlService = require('./lib/urlService');
 
 module.exports = function loadPlugin(projectPath, Plugin) {
-  var plugin = new Plugin(__dirname);
+  const plugin = new Plugin(__dirname);
+
+  const we = plugin.we;
+
   // set plugin configs
   plugin.setConfigs({
     wembed: {
@@ -40,7 +42,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   });
 
   plugin.getWembedSucessReponse = function getWembedSucessReponse(req, res) {
-    var wembedType = req.params.wembedType;
+    let wembedType = req.params.wembedType;
 
     // force use of the cors  *
     res.header('Access-Control-Allow-Origin', '*');
@@ -50,7 +52,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     if (wembedType === 'json') {
       return res.send({ wembed: res.locals.data } );
     } else {
-      var image;
+      let image;
 
       if (res.locals.data.dataValues.images && res.locals.data.dataValues.images[0]) {
         image = res.locals.data.dataValues.images[0].toJSON();
@@ -71,13 +73,13 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   plugin.registerPage = function registerPage(req, res, siteUrl, doneCallback) {
     getPageHtml(siteUrl, function (err, $, domain) {
       if (err) {
-        req.we.log.error('Error on getPageHtml:',err);
+        we.log.error('Error on getPageHtml:',err);
         return res.notFound('Cant get this page');
       }
 
-      var headTag = $('head');
+      let headTag = $('head');
 
-      var data = {};
+      let data = {};
       data.title = plugin.getPageTitle(headTag);
       data.description = plugin.getPageDescription($);
       data.url = siteUrl;
@@ -85,29 +87,36 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       data.domain = domain;
       data.images = [];
 
-      var pageUrlMetadata = urlService.getMetadataFromUrl(siteUrl);
+      let pageUrlMetadata = urlService.getMetadataFromUrl(siteUrl);
       data.provider = pageUrlMetadata.provider;
       data.pageId = pageUrlMetadata.pageId;
       data.pageType = pageUrlMetadata.type;
 
-      var pageRecord;
+      let pageRecord;
 
       req.we.utils.async.series([
         function createPage(done) {
           // save the page on db
-          req.we.db.models.wembed.create(data)
+          req.we.db.models.wembed
+          .create(data)
           .then(function (page) {
             pageRecord = page;
             done();
-          }).catch(done);
+          })
+          .catch((err)=> {
+            console.log(err);
+            we.log.error('Error on create page:', {
+              error: err
+            });
+
+            done(err);
+          });
         },
 
         function createDir(done) {
           // create one folder to this page
-          mkdirp(req.we.config.wembed.filesPath + pageRecord.id, function (err) {
-            if (err) return done(err);
-            done();
-          });
+          let p = path.resolve(we.config.wembed.filesPath, String(pageRecord.id));
+          we.utils.mkdirp(p, done);
         },
 
         function getPageImages(done) {
@@ -124,7 +133,14 @@ module.exports = function loadPlugin(projectPath, Plugin) {
 
               pageRecord.dataValues.images = imagesRecords;
               done();
-            }).catch(done);
+            })
+            .catch((err)=> {
+              plugin.we.log.error('Error on save images:', {
+                error: err
+              });
+
+              done(err);
+            });
           });
         }
       ], function (err) {
@@ -134,23 +150,23 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   }
 
   plugin.updatePage = function updatePage(req, res, pageRecord, doneCallback) {
-    var plugin = req.we.plugins['we-plugin-wembed-server'];
-    var we = req.we;
+    const plugin = req.we.plugins['we-plugin-wembed-server'],
+      we = req.we;
 
-    var pageFolder = we.config.wembed.filesPath + pageRecord.id;
+    let pageFolder = we.config.wembed.filesPath + pageRecord.id;
 
     // empty the dir
     plugin.emptyDir(pageFolder, function (err) {
       if (err) return doneCallback(err);
 
       getPageHtml(pageRecord.url, function (err, $) {
-        var headTag = $('head');
+        let headTag = $('head');
 
         pageRecord.title = plugin.getPageTitle(headTag);
         pageRecord.description = plugin.getPageDescription($);
         pageRecord.cacheTime = new Date();
 
-        var pageUrlMetadata = urlService.getMetadataFromUrl(pageRecord.url);
+        let pageUrlMetadata = urlService.getMetadataFromUrl(pageRecord.url);
         pageRecord.provider = pageUrlMetadata.provider;
         pageRecord.pageId = pageUrlMetadata.pageId;
         pageRecord.pageType = pageUrlMetadata.type;
@@ -162,9 +178,9 @@ module.exports = function loadPlugin(projectPath, Plugin) {
             pageRecord.removeImages( pageRecord.images )
             .then(function(){
               pageRecord.images = null;
-
               done();
-            }).catch(done);
+            })
+            .catch(done);
           },
           function (done) {
             // download and save new images
@@ -188,7 +204,8 @@ module.exports = function loadPlugin(projectPath, Plugin) {
             pageRecord.save()
             .then(function() {
               done(null);
-            }).catch(done);
+            })
+            .catch(done);
           }
         ], function (err) {
           doneCallback(err, pageRecord);
@@ -198,8 +215,8 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   }
 
   function getPageHtml(url, callback){
-    var options = getRequestOptions(url);
-    request(options, function (error, response, html){
+    let options = getRequestOptions(url);
+    request(options, function (error, response, html) {
       if(error){
         return callback(error);
       }
@@ -207,16 +224,15 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     });
   }
 
-  plugin.emptyDir = function emptyDir(dir, callback){
-    rmdir(dir,function (err){
+  plugin.emptyDir = function emptyDir(dir, callback) {
+    rmdir(dir,function (err) {
       if (err) return callback(err);
-
-      mkdirp(dir, callback);
+      we.utils.mkdirp(dir, callback);
     });
   };
 
   plugin.getPageTitle = function getPageTitle(headTag){
-    var title = headTag.find('meta[property="og:title"]').attr('content');
+    let title = headTag.find('meta[property="og:title"]').attr('content');
     if (title) return title;
 
     title = headTag.find('title').text();
@@ -225,7 +241,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
   }
 
   plugin.getPageDescription = function getPageDescription($){
-    var description = $('meta[property="og:description"]').attr('content');
+    let description = $('meta[property="og:description"]').attr('content');
     if (description) return description;
 
     description = $('.site-slogan').text();
@@ -235,16 +251,16 @@ module.exports = function loadPlugin(projectPath, Plugin) {
 
 
   plugin.getPageImages = function getPageImages($, pageRecord,  callback) {
-    var we = plugin.we;
+    const we = plugin.we;
 
-    var image = $('meta[property="og:image"]').attr('content');
-    var imagesSrc = [];
+    let image = $('meta[property="og:image"]').attr('content');
+    let imagesSrc = [];
     if (image) {
       imagesSrc.push(image);
     } else {
       // TODO get only 3 images
       $('img').each(function() {
-        var src = $(this).attr('src');
+        let src = $(this).attr('src');
         // check if has a valid image
         if (/^http?:\/\//.test(src)) {
           imagesSrc.push(src);
@@ -255,13 +271,13 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       }
     }
 
-    var imgsPath = we.config.wembed.filesPath + pageRecord.id+'/';
-    var imageRecords = [];
+    let imgsPath = we.config.wembed.filesPath + pageRecord.id+'/';
+    let imageRecords = [];
     // image order count
-    var orderNumber = 0;
+    let orderNumber = 0;
     // download every image file
     we.utils.async.each(imagesSrc, function (src, nextImage) {
-      var imageFileName = uuid.v1();
+      let imageFileName = uuid.v1();
 
       downloadImage(
         src,
@@ -281,7 +297,8 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         .then(function (imageRecord) {
           imageRecords.push(imageRecord);
           nextImage();
-        }).catch(nextImage);
+        })
+        .catch(nextImage);
       });
 
     }, function (err) {
@@ -297,15 +314,15 @@ module.exports = function loadPlugin(projectPath, Plugin) {
           return callback(err);
         }
 
-        var image = {};
+        let image = {};
         image.mime = res.headers['content-type'];
         image.size = res.headers['content-length'];
-        image.extension = mime.extension(image.mime);
+        image.extension = mime.getExtension(image.mime);
         image.originalFilename = uri;
 
-        newFilePath =  newFilePath + '.' + mime.extension(image.mime);
+        newFilePath =  newFilePath + '.' + mime.getExtension(image.mime);
 
-        var tempFilename = path.resolve(
+        let tempFilename = path.resolve(
           plugin.we.projectPath,
           'files/tmp/'+uuid.v1()
         );
